@@ -34,6 +34,16 @@ client.on('message', async (message) => {
     }
 
     await message.reply(new URL(lastResponse.view, ddraft).toString());
+  } else if (message.content === '?reset-draft') {
+    const res = await fetch(`${ddraft}/cube/api/ddraft/reset`, {method: 'POST'});
+    if (!res.ok) {
+      console.error(res);
+      await message.reply("Request failed :dumpsterdollar:");
+      return;
+    }
+
+    lastResponse = null;
+    await message.react('👍');
   } else {
     const pick = message.content.startsWith('?pick ');
     const sideboard = message.content.startsWith('?sideboard ');
