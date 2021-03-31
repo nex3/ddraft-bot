@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 require('dotenv').config();
 
 const ddraft = 'http://ddraft.clients.dashdash.help';
+const ddraftApi = process.env.DDRAFT_API_URL ?? ddraft;
 
 const client = new Discord.Client();
 
@@ -16,7 +17,7 @@ client.on('ready', () => {
 
 client.on('message', async (message) => {
   if (message.content === '?pack') {
-    const res = await fetch(`${ddraft}/cube/api/ddraft/pack/moddy`);
+    const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
     if (!res.ok) {
       console.error(res);
 
@@ -35,7 +36,7 @@ client.on('message', async (message) => {
 
     await message.reply(new URL(lastResponse.view, ddraft).toString());
   } else if (message.content === '?reset-draft') {
-    const res = await fetch(`${ddraft}/cube/api/ddraft/reset`, {method: 'POST'});
+    const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
     if (!res.ok) {
       console.error(res);
       await message.reply("Request failed :dumpsterdollar:");
@@ -58,7 +59,7 @@ client.on('message', async (message) => {
       const params = {card: message.content.substring('?pick '.length)};
       if (sideboard) params.sideboard = 'true';
 
-      const res = await fetch(new URL(lastResponse.choose, ddraft), {
+      const res = await fetch(new URL(lastResponse.choose, ddraftApi), {
         method: 'POST',
         body: new URLSearchParams(params)
       });
