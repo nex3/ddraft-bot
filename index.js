@@ -21,7 +21,7 @@ client.on('message', async (message) => {
     if (!res.ok) {
       console.error(res);
 
-      await message.reply("Request failed :dumpsterdollar:. Here's a normal pack to make it up to you: " +
+      await message.channel.send("Request failed :dumpsterdollar:. Here's a normal pack to make it up to you: " +
         `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
       return;
     }
@@ -29,17 +29,17 @@ client.on('message', async (message) => {
     lastResponse = await res.json();
 
     if (lastResponse.deck_image) {
-      await message.reply(new Discord.MessageEmbed()
+      await message.channel.send(new Discord.MessageEmbed()
         .setTitle('Deck so far:')
         .setImage(new URL(lastResponse.deck_image, ddraft)));
     }
 
-    await message.reply(new URL(lastResponse.view, ddraft).toString());
+    await message.channel.send(new URL(lastResponse.view, ddraft).toString());
   } else if (message.content === '?reset-draft') {
     const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
     if (!res.ok) {
       console.error(res);
-      await message.reply("Request failed :dumpsterdollar:");
+      await message.channel.send("Request failed :dumpsterdollar:");
       return;
     }
 
@@ -50,7 +50,7 @@ client.on('message', async (message) => {
     const sideboard = message.content.startsWith('?sideboard ');
     if (pick || sideboard) {
       if (!lastResponse?.choose) {
-        await message.reply("There's no pack to pick from!");
+        await message.channel.send("There's no pack to pick from!");
         return;
       }
 
@@ -65,7 +65,7 @@ client.on('message', async (message) => {
       });
       if (!res.ok) {
         console.error(res);
-        await message.reply((await res.json()).message);
+        await message.channel.send((await res.json()).message);
         return;
       }
 
