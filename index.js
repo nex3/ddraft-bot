@@ -12,8 +12,8 @@ const client = new Discord.Client();
 
 let lastResponse;
 
-const dumpy = client.emojis.find(emoji => emoji.name === "dumpsterdollar");
-const cubebrain = client.emojis.find(emoji => emoji.name === "cubebrain");
+const dumpy = '<:dumpsterdollar:741829899848777738>';
+const cubebrain = '<:cubebrain:745811987375718511>';
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
