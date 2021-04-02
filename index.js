@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const fetch = require('node-fetch');
+const chance = require('chance');
 
 // Importing this allows you to access the environment variables of the running node process
 require('dotenv').config();
@@ -12,6 +13,7 @@ const client = new Discord.Client();
 let lastResponse;
 
 const dumpy = client.emojis.find(emoji => emoji.name === "dumpsterdollar");
+const cubebrain = client.emojis.find(emoji => emoji.name === "cubebrain");
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -47,7 +49,7 @@ client.on('message', async (message) => {
       }
 
       lastResponse = null;
-      await message.react('👍');
+      await message.react('💥');
     } else {
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
@@ -73,7 +75,10 @@ client.on('message', async (message) => {
         }
 
         lastResponse = null;
-        await message.react('👍');
+        await message.react(chance.weighted(
+          ['👍', '😬', cubebrain, '🤣'],
+          [100, 10, 5, 1]
+        ));
       }
     }
   } catch (error) {
