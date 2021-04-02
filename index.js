@@ -11,67 +11,73 @@ const client = new Discord.Client();
 
 let lastResponse;
 
+const dumpy = client.emojis.find(emoji => emoji.name === "dumpsterdollar");
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.on('message', async (message) => {
-  if (message.content === '?pack') {
-    const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
-    if (!res.ok) {
-      console.error(res);
+  try {
+    if (message.content === '?pack') {
+      const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
+      if (!res.ok) {
+        console.error(res);
 
-      await message.channel.send("Request failed :dumpsterdollar:. Here's a normal pack to make it up to you: " +
-        `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
-      return;
-    }
-
-    lastResponse = await res.json();
-
-    if (lastResponse.deck_image) {
-      await message.channel.send(new Discord.MessageEmbed()
-        .setTitle('Deck so far:')
-        .setImage(new URL(lastResponse.deck_image, ddraft)));
-    }
-
-    await message.channel.send(new URL(lastResponse.view, ddraft).toString());
-  } else if (message.content === '?reset-draft') {
-    const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
-    if (!res.ok) {
-      console.error(res);
-      await message.channel.send("Request failed :dumpsterdollar:");
-      return;
-    }
-
-    lastResponse = null;
-    await message.react('👍');
-  } else {
-    const pick = message.content.startsWith('?pick ');
-    const sideboard = message.content.startsWith('?sideboard ');
-    if (pick || sideboard) {
-      if (!lastResponse?.choose) {
-        await message.channel.send("There's no pack to pick from!");
+        await message.channel.send(`Request failed ${dumpy}. Here's a normal pack to make it up to you: ` +
+                                   `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
         return;
       }
 
-      const name = message.content.substring(message.content.indexOf(' ') + 1);
+      lastResponse = await res.json();
 
-      const params = {card: message.content.substring('?pick '.length)};
-      if (sideboard) params.sideboard = 'true';
+      if (lastResponse.deck_image) {
+        await message.channel.send(new Discord.MessageEmbed()
+                                   .setTitle('Deck so far:')
+                                   .setImage(new URL(lastResponse.deck_image, ddraft)));
+      }
 
-      const res = await fetch(new URL(lastResponse.choose, ddraftApi), {
-        method: 'POST',
-        body: new URLSearchParams(params)
-      });
+      await message.channel.send(new URL(lastResponse.view, ddraft).toString());
+    } else if (message.content === '?reset-draft') {
+      const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
       if (!res.ok) {
         console.error(res);
-        await message.channel.send((await res.json()).message);
+        await message.channel.send(`Request failed ${dumpy}.`);
         return;
       }
 
       lastResponse = null;
       await message.react('👍');
+    } else {
+      const pick = message.content.startsWith('?pick ');
+      const sideboard = message.content.startsWith('?sideboard ');
+      if (pick || sideboard) {
+        if (!lastResponse?.choose) {
+          await message.channel.send("There's no pack to pick from!");
+          return;
+        }
+
+        const name = message.content.substring(message.content.indexOf(' ') + 1);
+
+        const params = {card: message.content.substring('?pick '.length)};
+        if (sideboard) params.sideboard = 'true';
+
+        const res = await fetch(new URL(lastResponse.choose, ddraftApi), {
+          method: 'POST',
+          body: new URLSearchParams(params)
+        });
+        if (!res.ok) {
+          console.error(res);
+          await message.channel.send((await res.json()).message);
+          return;
+        }
+
+        lastResponse = null;
+        await message.react('👍');
+      }
     }
+  } catch (error) {
+    await message.channel.send("<@!250519887108112384> Something broke!");
   }
 });
 
