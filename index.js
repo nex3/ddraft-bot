@@ -82,6 +82,7 @@ client.on('message', async (message) => {
       }
     }
   } catch (error) {
+    console.error(error);
     await message.channel.send("<@!250519887108112384> Something broke!");
   }
 });
