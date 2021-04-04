@@ -15,6 +15,16 @@ let lastResponse;
 
 const dumpy = '<:dumpsterdollar:741829899848777738>';
 const cubebrain = '<:cubebrain:745811987375718511>';
+const ddraftId = '826592102447317022';
+
+async function removeMyReacts(message) {
+  const reactions = message.reactions.cache
+    .filter(reaction => reaction.users.cache.has(ddraftId));
+
+  for (const reaction of reactions.values()) {
+    await reaction.users.remove(ddraftId);
+  }
+}
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -23,16 +33,20 @@ client.on('ready', () => {
 client.on('message', async (message) => {
   try {
     if (message.content === '?pack') {
+      await message.react('⌛');
+
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
       if (!res.ok) {
         console.error(res);
 
+        await removeMyReacts(message);
         await message.channel.send(`Request failed ${dumpy}. Here's a normal pack to make it up to you: ` +
                                    `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
         return;
       }
 
       lastResponse = await res.json();
+      await removeMyReacts(message);
 
       if (lastResponse.deck_image) {
         await message.channel.send(new Discord.MessageEmbed()
