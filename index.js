@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const fetch = require('node-fetch');
-const chance = require('chance');
+const Chance = require('chance');
 
 // Importing this allows you to access the environment variables of the running node process
 require('dotenv').config();
@@ -9,6 +9,7 @@ const ddraft = 'http://ddraft.clients.dashdash.help';
 const ddraftApi = process.env.DDRAFT_API_URL ?? ddraft;
 
 const client = new Discord.Client();
+const chance = new Chance();
 
 let lastResponse;
 
