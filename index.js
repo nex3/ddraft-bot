@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+:const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const Chance = require('chance');
 
@@ -54,7 +54,10 @@ client.on('message', async (message) => {
                                    .setImage(new URL(lastResponse.deck_image, ddraft)));
       }
 
-      await message.channel.send(new URL(lastResponse.view, ddraft).toString());
+      // Add a cache-busting query parameter to stop Discord from caching the
+      // pack image.
+      const url = `${lastResponse.view}?${Math.round(Date.now() / 1000)}`;
+      await message.channel.send(new URL(url, ddraft).toString());
     } else if (message.content === '?reset-draft') {
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
       if (!res.ok) {
