@@ -97,6 +97,27 @@ client.on('message', async (message) => {
           ['👍', '😬', cubebrain, '🤣'],
           [100, 10, 5, 1]
         ));
+      } else if (message.content.startsWith('?swap ')) {
+        if (!lastResponse?.choose) {
+          await message.channel.send("There's no deck to swap!");
+          return;
+        }
+
+        const name = message.content.substring(message.content.indexOf(' ') + 1);
+
+        const params = {card: message.content.substring('?swap '.length)};
+        const res = await fetch(new URL(lastResponse.swap, ddraftApi), {
+          method: 'POST',
+          body: new URLSearchParams(params)
+        });
+        if (!res.ok) {
+          console.error(res);
+          await message.channel.send((await res.json()).message);
+          return;
+        }
+
+        lastResponse = null;
+        await message.react('👍');
       }
     }
   } catch (error) {
