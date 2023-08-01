@@ -79,7 +79,8 @@ client.on('message', async (message) => {
 
         const name = message.content.substring(message.content.indexOf(' ') + 1);
 
-        const params = {card: message.content.substring('?pick '.length)};
+        const params = {card: message.content.substring(
+            (pick ? '?pick ' : '?sideboard ').length)};
         if (sideboard) params.sideboard = 'true';
 
         const res = await fetch(new URL(lastResponse.choose, ddraftApi), {
