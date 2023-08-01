@@ -116,7 +116,6 @@ client.on('message', async (message) => {
           return;
         }
 
-        lastResponse = null;
         await message.react('👍');
       }
     }
