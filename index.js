@@ -58,6 +58,28 @@ client.on('message', async (message) => {
       // pack image.
       const url = `${lastResponse.view}?${Math.round(Date.now() / 1000)}`;
       await message.channel.send(new URL(url, ddraft).toString());
+    } else if (message.content === '?sideboard') {
+        if (!lastResponse?.sideboard_image) {
+          await message.channel.send("There's no sideboard to show!");
+          return;
+        }
+
+      await message.channel.send(
+        new Discord.MessageEmbed().setImage(
+          new URL(lastResponse.sideboard_image, ddraft)
+        )
+      );
+    } else if (message.content === '?deck') {
+        if (!lastResponse?.deck_image) {
+          await message.channel.send("There's no deck to show!");
+          return;
+        }
+
+      await message.channel.send(
+        new Discord.MessageEmbed().setImage(
+          new URL(lastResponse.deck_image, ddraft)
+        )
+      );
     } else if (message.content === '?reset-draft') {
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
       if (!res.ok) {
