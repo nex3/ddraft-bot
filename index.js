@@ -26,6 +26,13 @@ async function removeMyReacts(message) {
   }
 }
 
+function formatDecks(decks) {
+  return Object.entries(decks).map(([name, url]) => {
+    const resolved = new URL(url, ddraft);
+    return `[${name}](${resolved})`;
+  }).join('\n');
+}
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -37,11 +44,15 @@ client.on('message', async (message) => {
 
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
       if (!res.ok) {
-        console.error(res);
-
         await removeMyReacts(message);
-        await message.channel.send(`Request failed ${marsh}. Here's a normal pack to make it up to you: ` +
-                                   `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
+
+        const json = await res.json();
+        if (json.decks) {
+          await message.channel.send(`${json.message}\n` + formatDecks(json.decks));
+        } else {
+          await message.channel.send(`Request failed ${marsh}. Here's a normal pack to make it up to you: ` +
+                                     `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
+        }
         return;
       }
 
@@ -59,10 +70,10 @@ client.on('message', async (message) => {
       const url = `${lastResponse.view}?${Math.round(Date.now() / 1000)}`;
       await message.channel.send(new URL(url, ddraft).toString());
     } else if (message.content === '?sideboard') {
-        if (!lastResponse?.sideboard_image) {
-          await message.channel.send("There's no sideboard to show!");
-          return;
-        }
+      if (!lastResponse?.sideboard_image) {
+        await message.channel.send("There's no sideboard to show!");
+        return;
+      }
 
       await message.channel.send(
         new Discord.MessageEmbed().setImage(
@@ -70,10 +81,10 @@ client.on('message', async (message) => {
         )
       );
     } else if (message.content === '?deck') {
-        if (!lastResponse?.deck_image) {
-          await message.channel.send("There's no deck to show!");
-          return;
-        }
+      if (!lastResponse?.deck_image) {
+        await message.channel.send("There's no deck to show!");
+        return;
+      }
 
       await message.channel.send(
         new Discord.MessageEmbed().setImage(
@@ -91,9 +102,14 @@ client.on('message', async (message) => {
       lastResponse = null;
       await message.react('💥');
     } else if (message.content === '?decks') {
-      await message.channel.send([0, 1, 2, 3, 4, 5, 6, 7].map(i =>
-        `[Deck for Seat ${i + 1}](${ddraft}/seat/${i}.dek)`
-      ).join('\n'));
+      const res = await fetch(`${ddraftApi}/api/decks`);
+      if (!res.ok) {
+        console.error(res);
+        await message.channel.send(`Request failed ${marsh}.`);
+        return;
+      }
+
+      await message.channel.send(formatDecks((await res.json())['decks']));
     } else {
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
