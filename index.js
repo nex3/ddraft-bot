@@ -110,6 +110,28 @@ client.on('message', async (message) => {
       }
 
       await message.channel.send(formatDecks((await res.json())['decks']));
+    } else if (message.content.startsWith('?fix ')) {
+      const cards = message.content.substring('?fix '.length);
+      if (!cards.includes('|')) {
+        await message.channel.send('Usage: ?fix card 1 | card 2');
+        return;
+      }
+
+      const [card1, card2] = cards.split('|').map(card => card.trim());
+      const params = new URLSearchParams();
+      params.set('card1', card1);
+      params.set('card2', card2);
+      const res = await fetch(`${ddraftApi}/api/fix`, {
+        method: 'POST',
+        body: new URLSearchParams(params)
+      });
+      if (!res.ok) {
+        console.error(res);
+        await message.channel.send((await res.json()).message);
+        return;
+      }
+
+      await message.react('👍');
     } else {
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
