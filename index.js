@@ -13,7 +13,7 @@ const chance = new Chance();
 
 let lastResponse;
 
-const dumpy = '<:dumpsterdollar:741829899848777738>';
+const marsh = '<:marsh:689284694403055619>';
 const cubebrain = '<:cubebrain:745811987375718511>';
 const ddraftId = '826592102447317022';
 
@@ -40,7 +40,7 @@ client.on('message', async (message) => {
         console.error(res);
 
         await removeMyReacts(message);
-        await message.channel.send(`Request failed ${dumpy}. Here's a normal pack to make it up to you: ` +
+        await message.channel.send(`Request failed ${marsh}. Here's a normal pack to make it up to you: ` +
                                    `https://cubecobra.com/cube/samplepack/moddy/${Date.now()}`);
         return;
       }
@@ -84,7 +84,7 @@ client.on('message', async (message) => {
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
       if (!res.ok) {
         console.error(res);
-        await message.channel.send(`Request failed ${dumpy}.`);
+        await message.channel.send(`Request failed ${marsh}.`);
         return;
       }
 
