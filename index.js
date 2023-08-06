@@ -95,8 +95,8 @@ client.on('message', async (message) => {
 
         lastResponse = null;
         await message.react(chance.weighted(
-          ['👍', '😬', cubebrain, '🤣'],
-          [100, 10, 5, 1]
+          ['👍', '😬', cubebrain, '🤣', '🤑'],
+          [100, 10, 5, 1, 1]
         ));
       } else if (message.content.startsWith('?swap ')) {
         if (!lastResponse?.choose) {
