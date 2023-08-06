@@ -68,6 +68,10 @@ client.on('message', async (message) => {
 
       lastResponse = null;
       await message.react('💥');
+    } else if (message.content === '?decks') {
+      await message.channel.send([0, 1, 2, 3, 4, 5, 6, 7].map(i =>
+        `[Deck for Seat ${i + 1}](${ddraft}/seat/${i}.dek)`
+      ).join('\n'));
     } else {
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
