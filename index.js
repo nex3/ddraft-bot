@@ -39,7 +39,19 @@ client.on('ready', () => {
 
 client.on('message', async (message) => {
   try {
-    if (message.content === '?pack') {
+    if (message.content === '?help') {
+      await message.channel.send(
+        '**?help**: Show this help info\n' +
+        '**?pack**: Show a new pack to pick from\n' +
+        '**?pick** _card_: Pick a card from the current pack\n' +
+        '**?sideboard** _card_: Pick a card from the current pack into the sideboard\n' +
+        '**?deck**: Show the current deck\n' +
+        '**?sideboard**: Show the current sideboard\n' +
+        '**?decks**: Link MTGO versions of all decks\n' +
+        '**?fix** _card_ | _card_: Swap two cards everywhere\n' +
+        '**?reset-draft**: Reset the current draft\n'
+      );
+    } else if (message.content === '?pack') {
       await message.react('⌛');
 
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/pack/moddy`);
@@ -113,7 +125,7 @@ client.on('message', async (message) => {
     } else if (message.content.startsWith('?fix ')) {
       const cards = message.content.substring('?fix '.length);
       if (!cards.includes('|')) {
-        await message.channel.send('Usage: ?fix card 1 | card 2');
+        await message.channel.send('Usage: ?fix _card_ | _card_');
         return;
       }
 
