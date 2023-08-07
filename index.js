@@ -27,9 +27,10 @@ async function removeMyReacts(message) {
 }
 
 function formatDecks(decks) {
-  return Object.entries(decks).map(([name, url]) => {
-    const resolved = new URL(url, ddraft);
-    return `[${name}](${resolved})`;
+  return decks.map((deck, i) => {
+    const deckUrl = new URL(deck.deck, ddraft);
+    const seatUrl = new URL(deck.seat, ddraft);
+    return `[${deck.name}](${deckUrl}) in [seat ${i + 1}](${seatUrl})`;
   }).join('\n');
 }
 
