@@ -12,6 +12,7 @@ const client = new Discord.Client();
 const chance = new Chance();
 
 let lastResponse;
+let pickedCard = false;
 
 const marsh = '<:marsh:689284694403055619>';
 const cubebrain = '<:cubebrain:745811987375718511>';
@@ -30,7 +31,7 @@ function formatDecks(decks) {
   return decks.map((deck, i) => {
     const deckUrl = new URL(deck.deck, ddraft);
     const seatUrl = new URL(deck.seat, ddraft);
-    return `[${deck.name}](${deckUrl}) in [seat ${i + 1}](${seatUrl})`;
+    return `Seat ${i + 1}: [${deck.name}](${seatUrl}) ([MTGO download](${deckUrl}))`;
   }).join('\n');
 }
 
@@ -42,15 +43,17 @@ client.on('message', async (message) => {
   try {
     if (message.content === '?help') {
       await message.channel.send(
-        '**?help**: Show this help info\n' +
-        '**?pack**: Show a new pack to pick from\n' +
-        '**?pick** _card_: Pick a card from the current pack\n' +
-        '**?sideboard** _card_: Pick a card from the current pack into the sideboard\n' +
-        '**?deck**: Show the current deck\n' +
-        '**?sideboard**: Show the current sideboard\n' +
-        '**?decks**: Link MTGO versions of all decks\n' +
-        '**?fix** _card_ | _card_: Swap two cards everywhere\n' +
-        '**?reset-draft**: Reset the current draft\n'
+        '**?help** — Show this help info\n' +
+        '**?pack** — Show a new pack to pick from\n' +
+        '**?pick** _card_ — Pick a card from the current pack\n' +
+        '**?sideboard** _card_ — Pick a card from the current pack into the sideboard\n' +
+        '**?deck** — Show the current deck\n' +
+        '**?sideboard** — Show the current sideboard\n' +
+        '**?decks** — Link all decks\n' +
+        '**?name** _name_ — Name the current deck\n' +
+        '**?name** _seat_: _name_ — Name the deck for the given seat\n' +
+        '**?fix** _card_ | _card_ — Swap two cards everywhere\n' +
+        '**?reset-draft** — Reset the current draft\n'
       );
     } else if (message.content === '?pack') {
       await message.react('⌛');
@@ -70,6 +73,7 @@ client.on('message', async (message) => {
       }
 
       lastResponse = await res.json();
+      pickedCard = false;
       await removeMyReacts(message);
 
       if (lastResponse.deck_image) {
@@ -104,6 +108,39 @@ client.on('message', async (message) => {
           new URL(lastResponse.deck_image, ddraft)
         )
       );
+    } else if (message.content.startsWith('?name ')) {
+      const params = message.content.substring('?name '.length);
+      let url;
+      let name;
+      if (message.content.includes(':')) {
+        const match = params.match(/(.*?):(.*)/);
+        const seat = parseInt(match[1]);
+        name = match[2].trim();
+        if (Number.isNaN(seat) || seat < 1 || seat > 8) {
+          await message.channel.send(`Invalid seat number "${match[1].trim()}".`);
+          return;
+        }
+
+        url = new URL(`${ddraftApi}/api/seat/${seat}/name`);
+      } else if (lastResponse?.name) {
+        url = new URL(lastResponse.name, ddraftApi);
+        name = params.trim();
+      } else {
+        await message.channel.send("There's no deck to name!");
+        return;
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        body: new URLSearchParams({name})
+      });
+      if (!res.ok) {
+        console.error(res);
+        await message.channel.send((await res.json()).message);
+        return;
+      }
+
+      await message.react('👍');
     } else if (message.content === '?reset-draft') {
       const res = await fetch(`${ddraftApi}/cube/api/ddraft/reset`, {method: 'POST'});
       if (!res.ok) {
@@ -146,6 +183,11 @@ client.on('message', async (message) => {
 
       await message.react('👍');
     } else {
+      if (pickedCard) {
+        await message.channel.send("You've already picked a card from this pack!");
+        return;
+      }
+
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
       if (pick || sideboard) {
@@ -170,13 +212,13 @@ client.on('message', async (message) => {
           return;
         }
 
-        lastResponse = null;
+        pickedCard = true;
         await message.react(chance.weighted(
           ['👍', '😬', cubebrain, '🤣', '🤑'],
           [100, 10, 5, 1, 1]
         ));
       } else if (message.content.startsWith('?swap ')) {
-        if (!lastResponse?.choose) {
+        if (!lastResponse?.swap) {
           await message.channel.send("There's no deck to swap!");
           return;
         }
