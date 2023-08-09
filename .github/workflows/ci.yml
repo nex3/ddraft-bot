@@ -26,5 +26,6 @@ jobs:
             npm install && (
               kill $(cat nohup.pid);
               (nohup node index.js & echo $! > nohup.pid)
-            )
+            ) &&
+            exit
         '
