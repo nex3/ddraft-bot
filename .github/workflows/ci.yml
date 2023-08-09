@@ -25,7 +25,6 @@ jobs:
             git reset --hard origin/master &&
             npm install && (
               kill $(cat nohup.pid);
-              (nohup node index.js & echo $! > nohup.pid)
-            ) &&
-            exit
+              (nohup node index.js &>/dev/null & echo $! > nohup.pid)
+            )
         '
