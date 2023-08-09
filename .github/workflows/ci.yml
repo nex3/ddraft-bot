@@ -23,7 +23,8 @@ jobs:
             cd ~/ddraft-bot &&
             git fetch origin &&
             git reset --hard origin/master &&
-            kill $(echo nohup.pid) &&
+            npm install &&
+            kill $(cat nohup.pid) &&
             (nohup node index.js &) &&
             echo $! > nohup.pid
         '
