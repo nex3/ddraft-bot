@@ -1,0 +1,29 @@
+name: CI
+
+defaults:
+  run: {shell: bash}
+
+on:
+  push: {branches: [master]}
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}    
+    - name: Restart bot
+      run: >
+        ssh nex3@ddraft.clients.dashdash.help '
+          nvm use --lts &&
+            cd ~/ddraft-bot &&
+            git fetch origin &&
+            git reset --hard origin/master &&
+            kill $(echo nohup.pid) &&
+            (nohup node index.js &) &&
+            echo $! > nohup.pid
+        '
