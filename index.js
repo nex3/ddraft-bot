@@ -183,14 +183,14 @@ client.on('message', async (message) => {
 
       await message.react('👍');
     } else {
-      if (pickedCard) {
-        await message.channel.send("You've already picked a card from this pack!");
-        return;
-      }
-
       const pick = message.content.startsWith('?pick ');
       const sideboard = message.content.startsWith('?sideboard ');
       if (pick || sideboard) {
+        if (pickedCard) {
+          await message.channel.send("You've already picked a card from this pack!");
+          return;
+        }
+
         if (!lastResponse?.choose) {
           await message.channel.send("There's no pack to pick from!");
           return;
