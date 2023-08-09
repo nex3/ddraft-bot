@@ -18,7 +18,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}    
     - name: Restart bot
       run: >
-        ssh nex3@ddraft.clients.dashdash.help '
+        ssh -o StrictHostKeyChecking=no nex3@ddraft.clients.dashdash.help '
           nvm use --lts &&
             cd ~/ddraft-bot &&
             git fetch origin &&
