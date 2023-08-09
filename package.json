@@ -4,7 +4,7 @@
   "description": "Boilerplate basic example bot from the discord.js docs",
   "main": "index.js",
   "engines": {
-    "node": "14.x",
+    "node": "18.x",
     "npm": "*"
   },
   "scripts": {
